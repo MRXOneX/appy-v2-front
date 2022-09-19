@@ -1,0 +1,126 @@
+<html>
+    <body>
+        
+        <canvas id="canvas" width="300" height="300"></canvas>
+
+        <script>
+            const canvas = document.getElementById('canvas')
+            const ctx = canvas.getContext('2d')
+
+            canvas.style.border = '1px solid black'
+
+            let shapes = []
+            let current_shape_index = null
+            let is_dragging = false
+            let startX;
+            let startY;
+            shapes.push({
+                x: 0,
+                y: 0,
+                width: 100,
+                height: 100,
+                color: 'red',
+            })
+            shapes.push({
+                x: 110,
+                y: 110,
+                width: 100,
+                height: 100,
+                color: 'blue',
+            })
+
+            let is_mouse_in_shape = (x, y, shape) => {
+                let shape_left = shape.x
+                let shape_right = shape.x + shape.width
+                let shape_top = shape.y
+                let shape_bottom = shape.y + shape.height
+
+                // console.log(shape_left, shape_right, shape_top, shape_bottom);
+    // console.log(x, y);
+                if (x > shape_left && x < shape_right && y > shape_top && y < shape_bottom) {
+                    return true
+                }
+
+                return false
+            }
+            let mouse_down = (e) => {
+                e.preventDefault()
+                
+
+                startX = parseInt(e.clientX)
+                startY = parseInt(e.clientY)
+                console.log(startX)
+
+                let index = 0
+                for (let shape of shapes) {
+                    if (is_mouse_in_shape(startX, startY, shape)) {
+                        current_shape_index = index
+                        is_dragging = true
+                        return
+                    }
+                    index++
+                }
+            }
+
+            let mouse_up = (e) => {
+                if (!is_dragging) return
+
+                
+                e.preventDefault()
+                is_dragging = false
+            }
+
+            let mouse_out = (e) => {
+                if (!is_dragging) return
+
+                
+                e.preventDefault()
+                is_dragging = false
+            }
+
+            let mouse_move = e => {
+                if (!is_dragging) return
+
+
+
+                if (is_dragging) {
+                    e.preventDefault()
+                    let mouseX = parseInt(e.clientX)
+                    let mouseY = parseInt(e.clientY)
+
+                    let dx = mouseX - startX
+                    let dy = mouseY - startY
+
+                    let current_shape = shapes[current_shape_index]
+                    current_shape.x += dx
+                    current_shape.y += dy
+                 
+                    draw_shapes()
+
+                    startX = mouseX
+                    startY = mouseY
+
+                    console.log(dx, dy)
+                }
+            }
+
+
+            canvas.onmousedown = mouse_down
+            canvas.onmouseup = mouse_up
+            canvas.onmouseout = mouse_out
+            canvas.onmousemove = mouse_move
+
+            
+            let draw_shapes = () => {
+                ctx.clearRect(0, 0, 300, 300)
+
+                for (let shape of shapes) {
+                    ctx.fillStyle = shape.color
+                    ctx.fillRect(shape.x, shape.y, shape.width, shape.height)
+                }
+            }
+
+            draw_shapes()
+        </script>
+    </body>
+</html>
