@@ -58,7 +58,10 @@ const Edit = () => {
                 fontStyle={selectedElement.fontStyle}
                 onChangeSelectedElement={onChangeSelectedElement}
               />
-              <FontSize />
+              <FontSize 
+                fontSize={selectedElement.fontSize}
+                onChangeSelectedElement={onChangeSelectedElement}
+              />
             </div>
           </div>
         )}
@@ -111,7 +114,7 @@ const FontStyle = memo(
       <div className="mt-[5px] mr-[10px] w-full">
         <select
           onChange={(e: any) => onChangeFontStyle(e.target.value)}
-          className="text-[16px] py-[5px] w-full rounded-md border border-gray-300 bg-white px-3  focus:border-indigo-500 focus:border-[2px] focus:outline-none focus:ring-indigo-500 sm:text-sm"
+          className="text-[16px] focus:py-[5px] py-[6px] w-full rounded-md border border-gray-300 bg-white px-[5px] focus:px-[4px]  focus:border-indigo-500 focus:border-[2px] focus:outline-none focus:ring-indigo-500 sm:text-sm"
         >
           <option selected={fontStyle === "normal"} value="normal">
             Medium
@@ -125,16 +128,40 @@ const FontStyle = memo(
   }
 );
 
-const FontSize = () => {
+
+type FontSizeProps = {
+  fontSize: number | undefined;
+  onChangeSelectedElement: (newAttrs: any) => void;
+}
+const FontSize = memo(({
+  fontSize,
+  onChangeSelectedElement,
+}: FontSizeProps) => {
+  const [localFontSize, setLocalFontSize] = useState<number | undefined>(0)
+
+
+  useEffect(() => {
+    setLocalFontSize(fontSize)
+  }, [fontSize])
+
+  const onHandleBlur = () => {
+    onChangeSelectedElement({
+      fontSize: localFontSize,
+    })
+  }
+
   return (
     <div className="mt-[5px] ml-[10px] w-full">
       <input
-        className="w-full py-[5px] text-[16px] px-[10px] rounded-md border border-gray-300 outline-none focus:border-indigo-500 focus:border-[2px] focus:ring-indigo-500 sm:text-sm"
-        type="text"
+        value={localFontSize}
+        onChange={(e: any) => setLocalFontSize(Number(e.target.value))}
+        onBlur={onHandleBlur}
+        className="w-full focus:py-[4px] py-[5px] text-[16px] focus:px-[9px] px-[10px] rounded-md border border-gray-300 outline-none focus:border-indigo-500 focus:border-[2px] focus:ring-indigo-500 sm:text-sm"
+        type="number"
       />
     </div>
   );
-};
+})
 
 type FontFamilyProps = {
   fontFamily: string | undefined;
@@ -161,10 +188,13 @@ const FontFamily = memo(
           onChange={(e: any) => onChangeFontFamily(e.target.value)}
           className="w-full text-[16px] rounded-r-md border border-gray-300 bg-white px-3  focus:border-indigo-500 focus:border-[2px] focus:outline-none focus:ring-indigo-500 sm:text-sm"
         >
-          <option selected={fontFamily === "Roboto"} defaultValue="Roboto">
+          <option selected={fontFamily === "Roboto"} value="Roboto">
             Roboto
           </option>
-          <option selected={fontFamily === "Montserrat"} defaultValue="Roboto">
+          <option selected={fontFamily === "Nunito"} value="Nunito">
+            Nunito
+          </option>
+          <option selected={fontFamily === "Montserrat"} value="Montserrat">
             Montserrat
           </option>
         </select>
@@ -341,7 +371,7 @@ const Sizes = memo(
           <input
             value={localHeight}
             onChange={(e) => setLocalHeight(Number(e.target.value))}
-            onBlur={() => onHandleBlur("height", localWidth)}
+            onBlur={() => onHandleBlur("height", localHeight)}
             className="w-full px-[10px] rounded-r-md border border-gray-300 outline-none focus:border-indigo-500 focus:border-[2px] focus:ring-indigo-500 sm:text-sm"
             type="number"
           />
