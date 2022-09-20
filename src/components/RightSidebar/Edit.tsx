@@ -1,6 +1,7 @@
 import { useEffect, memo, useState } from "react";
 // hooks
 import { useTypedSelector, useActions } from "../../hooks";
+import socket from "../../socket";
 // types
 import { Element } from "../../utils/types";
 
@@ -288,9 +289,15 @@ const CanvasEdit = () => {
 
 
   const onHandleBlur = (pos: string, value: number) => {
-    if (pos === 'x') setCanvasWidth(value)
+    if (pos === 'x') {
+      setCanvasWidth(value)
+      socket.emit('changeCanvasWidthServer', {id: 3, size: value})
+    }
 
-    if (pos === 'y') setCanvasHeight(value)
+    if (pos === 'y') {
+      setCanvasHeight(value)
+      socket.emit('changeCanvasHeightServer', {id: 3, size: value})
+    }
   }
 
   return (

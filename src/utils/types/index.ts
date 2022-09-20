@@ -11,7 +11,6 @@ export type Element = {
   
     text?: string;
     fontSize?: number;
-    fontColor?: string
     fontFamily?: string;
     fontStyle?: string;
   

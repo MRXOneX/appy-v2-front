@@ -1,20 +1,14 @@
-// components
-import { Canvas, Navbar, LeftSidebar, RightSidebar } from "./components";
-// hooks
-import { useTypedSelector } from "./hooks";
+import { Routes, Route } from "react-router";
+// pages
+import Main from "./pages/Main";
+import Design from "./pages/Design";
 
 function App() {
-  const { elements } = useTypedSelector((state) => state.canvas);
-
   return (
-    <div className="flex flex-col h-full">
-      <Navbar />
-      <div className="flex justify-between h-full w-full">
-        <LeftSidebar />
-        <Canvas elements={elements} />
-        <RightSidebar />
-      </div>
-    </div>
+    <Routes>
+      <Route path="/:id" element={<Design />} />
+      <Route path="/" element={<Main />} />
+    </Routes>
   );
 }
 
