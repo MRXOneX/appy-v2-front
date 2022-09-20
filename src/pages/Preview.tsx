@@ -1,21 +1,28 @@
 import { memo, useState } from "react";
 import { useNavigate, useParams } from "react-router";
+import { useTypedSelector } from "../hooks";
 
 const Preview = () => {
-    const param = useParams()
+  // getters
+  const { canvasWidth, canvasHeight } = useTypedSelector(
+    (state) => state.canvas
+  );
 
-    const navigate = useNavigate()
+  const param = useParams();
+
+  const navigate = useNavigate();
   return (
     <div className="h-full relative flex flex-col items-center justify-center">
-      <button 
+      <button
         onClick={() => navigate(`/${param?.id}`)}
-        className="absolute font-medium text-indigo-700 left-[20px] top-[20px]">
+        className="absolute font-medium text-indigo-700 hover:text-indigo-900 left-[20px] top-[20px]"
+      >
         back
       </button>
       <Info />
       <div className="flex pt-[50px]">
         <Enters />
-        <Window />
+        <Window canvasHeight={canvasHeight} canvasWidth={canvasWidth} />
       </div>
     </div>
   );
@@ -47,20 +54,72 @@ const Info = memo(() => {
 
 const Enters = memo(() => {
   return (
-    <div className="p-[15px] shadow-md w-[300px] rounded-lg bg-white">
-      <span className="text-[20px] text-slate-800 font-bold font-[Nunito]">
-        Enters
-      </span>
+    <div>
+      <div className="p-[15px] shadow-md w-[300px] rounded-lg bg-white">
+        <div className="flex flex-col">
+          <div className="w-full text-center">
+            <span className="text-[20px] text-slate-800 font-bold font-[Nunito]">
+              Text
+            </span>
+          </div>
+          <div className="flex flex-col">
+            <label
+              className="mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+              htmlFor="test"
+            >
+              text
+            </label>
+            <input
+              className="outline-none border focus:border-[2px] focus:px-[9px] focus:py-[4px] px-[10px] py-[5px] w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              id="test"
+              type="text"
+            />
+          </div>
+        </div>
+        <div className="w-full pt-[30px] text-center">
+          <span className="text-[20px] text-slate-800 font-bold font-[Nunito]">
+            Image
+          </span>
+        </div>
+        <label
+          className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+          htmlFor="small_size"
+        >
+          Small file input
+        </label>
+        <input
+          className="block w-full text-sm text-gray-900 bg-gray-50 rounded-r-lg border border-gray-300 cursor-pointer dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+          id="small_size"
+          type="file"
+        />
+      </div>
     </div>
   );
 });
 
-const Window = memo(() => {
+type WindowType = {
+  canvasWidth: number;
+  canvasHeight: number;
+};
+const Window = memo(({ canvasWidth, canvasHeight }: WindowType) => {
   return (
-    <div className="p-[15px] shadow-md w-[600px] ml-[50px] rounded-lg bg-white">
-      <span className="text-[20px] text-slate-800 font-bold font-[Nunito]">
-        Preview
-      </span>
+    <div>
+      <div className="p-[25px] overflow-auto flex items-center justify-center shadow-md w-[600px] ml-[50px] rounded-lg bg-white">
+        {/* <span className="text-[20px] text-slate-800 font-bold font-[Nunito]">
+          Preview
+        </span> */}
+        <div
+          style={{
+            width: canvasWidth,
+            height: canvasHeight,
+          }}
+          className="border-dashed flex items-center justify-center border-2 border-indigo-600"
+        >
+          <span className="font-bold text-indigo-600 font-[Nunito] text-[24px]">
+            Your image
+          </span>
+        </div>
+      </div>
     </div>
   );
 });
