@@ -121,7 +121,7 @@ const Info = memo(() => {
   return (
     <div className="absolute flex w-full justify-end top-[-25px]">
       <span className="text-slate-500">
-        {canvasHeight}x{canvasWidth}
+        {canvasWidth}x{canvasHeight}
       </span>
     </div>
   );

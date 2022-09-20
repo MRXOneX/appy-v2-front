@@ -1,5 +1,5 @@
 export type Element = {
-    id: string;
+    id?: string;
     name: string
     type: string;
     x: number;
@@ -13,6 +13,10 @@ export type Element = {
     fontSize?: number;
     fontFamily?: string;
     fontStyle?: string;
+
+    designId?: number
   
     image?: string;
+
+    new?: boolean
 }

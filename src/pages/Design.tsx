@@ -3,7 +3,11 @@ import { useEffect } from "react";
 import { useParams } from "react-router";
 import { Canvas, LeftSidebar, Navbar, RightSidebar } from "../components";
 import { useActions, useTypedSelector } from "../hooks";
+
 import socket from "../socket";
+
+
+
 
 const Design = () => {
   // getters
@@ -15,6 +19,7 @@ const Design = () => {
     setTitle,
 
     setElements,
+    setSelectedElement,
 
     setCanvasWidth,
     setCanvasHeight,
@@ -30,7 +35,7 @@ const Design = () => {
         );
         console.log(res);
         if (res.status === 200) {
-          setElements(res.data?.elements ?? []);
+          setElements(JSON.parse(res.data?.elements) ?? []);
           setCanvasWidth(res.data?.canvasWidth);
           setCanvasHeight(res.data?.canvasHeight);
           setTitle(res.data?.title);
@@ -50,11 +55,15 @@ const Design = () => {
         }
       });
 
-      socket.on("changeCanvasHeightClient", (data) => {
+      socket.on("changeCanvasHeightClient", (data: any) => {
         if (id === data.id) {
           setCanvasHeight(data.canvasHeight);
         }
       });
+
+      //
+    
+ 
 
       return () => {
         socket.off("changeCanvasWidthClient");
