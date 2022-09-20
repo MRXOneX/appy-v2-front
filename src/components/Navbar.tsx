@@ -1,10 +1,15 @@
+
+import { useNavigate } from "react-router";
+import axios from "axios";
 // hooks
 import { useTypedSelector, useActions } from "../hooks";
 // icons
 import Logo from "../utils/svg/logo_appy.svg";
 import Delete from "../utils/svg/icon_delete.svg";
-import { useNavigate } from "react-router";
-import axios from "axios";
+import Save from '../utils/svg/save.svg'
+import window from '../utils/svg/window.svg'
+
+
 
 const Navbar = () => {
   // getters
@@ -24,7 +29,7 @@ const Navbar = () => {
     try {
       const res = await axios.post("http://localhost:3333/design/save", {
         designId: id,
-        elements: JSON.stringify(elements)
+        elements: JSON.stringify(elements),
       });
       console.log(res);
     } catch (error) {}
@@ -71,7 +76,12 @@ const Navbar = () => {
         )}
       </div>
       <div className="w-[280px] flex justify-around">
-        <span className="font-medium text-[22px]"></span>
+        <button
+          onClick={() => navigate(`/preview/${id}`)}
+          className="ml-5 rounded-md border border-gray-300 bg-white py-[4px] px-3 text-sm font-medium  text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        >
+          PREVIEW
+        </button>
         <button
           onClick={onHandleSave}
           className="ml-5 rounded-md border border-gray-300 bg-white py-[4px] px-3 text-sm font-medium  text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
