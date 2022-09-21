@@ -1,14 +1,56 @@
-import { memo, useState } from "react";
+import axios from "axios";
+import { memo, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { useTypedSelector } from "../hooks";
+import { useActions, useTypedSelector } from "../hooks";
 
 const Preview = () => {
   // getters
   const { canvasWidth, canvasHeight } = useTypedSelector(
     (state) => state.canvas
   );
+  // setters
+  const {
+    setTitle,
+    setId,
+    setElements,
+
+    setCanvasWidth,
+    setCanvasHeight,
+  } = useActions();
+
+  const [texts, setTexts] = useState([]);
+  const [images, setImages] = useState([]);
 
   const param = useParams();
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:3333/design/${param?.id}`
+        );
+        console.log(res);
+        if (res.status === 200) {
+          const parseElements: any = JSON.parse(res.data?.elements) ?? [];
+          setElements(parseElements);
+          setCanvasWidth(res.data?.canvasWidth);
+          setCanvasHeight(res.data?.canvasHeight);
+          setTitle(res.data?.title);
+          setId(res.data?.id);
+
+          setTexts(
+            parseElements.filter(
+              (el: any) => el.type === "text" && el.isReplace
+            )
+          );
+        }
+      } catch (error) {}
+    })();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [param?.id]);
+
+  console.log(texts);
 
   const navigate = useNavigate();
   return (
@@ -21,7 +63,7 @@ const Preview = () => {
       </button>
       <Info />
       <div className="flex pt-[50px]">
-        <Enters />
+        <Enters designId={param?.id} texts={texts} images={images} />
         <Window canvasHeight={canvasHeight} canvasWidth={canvasWidth} />
       </div>
     </div>
@@ -52,32 +94,86 @@ const Info = memo(() => {
   );
 });
 
-const Enters = memo(() => {
+type EntersProps = {
+  texts: any;
+  images: any;
+
+  designId: string | undefined
+};
+const Enters = memo(({ texts, images, designId }: EntersProps) => {
+  const [localTexts, setLocalTexts] = useState<any>({})
+
+
+  useEffect(() => {
+    let newTexts = {}
+
+    texts.forEach((text: any) => {
+      newTexts = {
+        ...newTexts,
+        [text.id]: {
+          text: text.text,
+          id: text.id,
+          isReplace: text.isReplace
+        }
+      }
+    })
+
+    setLocalTexts(newTexts)
+  }, [texts, images])
+
+  console.log(localTexts)
+
+  const onHandlePreview = async () => {
+    try {
+      const res = await axios.post('http://localhost:3333/design/preview', {
+        texts: localTexts,
+        designId: Number(designId)
+      })
+    } catch (error) {
+      
+    }
+  }
+
+  const onChange = (id: number, value: string) => {
+    setLocalTexts((prev: any) => {
+      prev[id].text = value
+
+      return prev
+    })
+  }
+
+
   return (
     <div>
       <div className="p-[15px] shadow-md w-[300px] rounded-lg bg-white">
         <div className="flex flex-col">
           <div className="w-full text-center">
-            <span className="text-[20px] text-slate-800 font-bold font-[Nunito]">
+            <span className="text-[22px] text-slate-800 font-bold font-[Nunito]">
               Text
             </span>
           </div>
           <div className="flex flex-col">
-            <label
-              className="mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-              htmlFor="test"
-            >
-              text
-            </label>
-            <input
-              className="outline-none border focus:border-[2px] focus:px-[9px] focus:py-[4px] px-[10px] py-[5px] w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-              id="test"
-              type="text"
-            />
+            {texts.map((text: any) => (
+              <div className="flex mt-[10px] flex-col">
+                <label
+                  className="mb-[4px] flex text-[17px] font-medium text-gray-900"
+                  htmlFor={text.id}
+                >
+                  ID: <span className="truncate text-gray-700  ml-[10px]">{text.id}</span>
+                </label>
+                <input
+                  value={localTexts[text?.id]?.text}
+                  onChange={(e) => onChange(text.id, e.target.value)}
+                  className="outline-none border focus:border-[2px] focus:px-[9px] focus:py-[4px] px-[10px] py-[5px] w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  id={text.id}
+                  type="text"
+                />
+              </div>
+            ))}
           </div>
         </div>
         <div className="w-full pt-[30px] text-center">
-          <span className="text-[20px] text-slate-800 font-bold font-[Nunito]">
+          <span className="text-[22px] text-slate-800 font-bold font-[Nunito]">
             Image
           </span>
         </div>
@@ -93,6 +189,9 @@ const Enters = memo(() => {
           type="file"
         />
       </div>
+      <button onClick={onHandlePreview}>
+        preview
+      </button>
     </div>
   );
 });

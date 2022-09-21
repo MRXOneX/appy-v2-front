@@ -89,6 +89,7 @@ const Text = () => {
   const onHandleCreateText = (text: string, size: number): void => {
     const id = v4();
     const newElement: Element = {
+      isReplace: true,
       x: Math.round(canvasWidth / 3),
       y: Math.round(canvasHeight / 3),
       width: 100,

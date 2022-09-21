@@ -18,5 +18,7 @@ export type Element = {
   
     image?: string;
 
+    isReplace?: boolean
+
     new?: boolean
 }
