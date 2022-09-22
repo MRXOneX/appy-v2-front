@@ -31,18 +31,38 @@ const Edit = () => {
     <div className="pt-[15px] h-full px-[10px]">
       <div className="grid gap-[20px] grid-cols-1 divide-y">
         {selectedElement && (
-          <div className="flex flex-col">
-            <Position
-              x={selectedElement.x}
-              y={selectedElement.y}
-              onChangeSelectedElement={onChangeSelectedElement}
-            />
-            <Sizes
-              width={selectedElement.width}
-              height={selectedElement.height}
-              onChangeSelectedElement={onChangeSelectedElement}
-            />
-          </div>
+          <>
+            {(selectedElement.type === "text" ||
+              selectedElement.type === "image") && (
+                <div className="flex flex-col">
+                  <div className="form-control">
+                    <label className="label py-0 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked
+                        className="checkbox checkbox-primary"
+                      />
+
+                      <span className="text-[17px] font-medium font-[Nunito]">
+                        For dynamic replacement
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              )}
+            <div className="flex flex-col pt-[15px]">
+              <Position
+                x={selectedElement.x}
+                y={selectedElement.y}
+                onChangeSelectedElement={onChangeSelectedElement}
+              />
+              <Sizes
+                width={selectedElement.width}
+                height={selectedElement.height}
+                onChangeSelectedElement={onChangeSelectedElement}
+              />
+            </div>
+          </>
         )}
 
         {!selectedElement && <CanvasEdit />}
@@ -59,7 +79,7 @@ const Edit = () => {
                 fontStyle={selectedElement.fontStyle}
                 onChangeSelectedElement={onChangeSelectedElement}
               />
-              <FontSize 
+              <FontSize
                 fontSize={selectedElement.fontSize}
                 onChangeSelectedElement={onChangeSelectedElement}
               />
@@ -80,24 +100,25 @@ const Edit = () => {
   );
 };
 
-
 type FontColorProps = {
   fontColor: string | undefined;
   onChangeSelectedElement: (newAttrs: any) => void;
 };
-const FontColor = memo(({ fontColor, onChangeSelectedElement }: FontColorProps) => {
-  return (
-    <div className="mt-1 flex rounded-md shadow-sm">
-      <div className="flex cursor-pointer text-[16px] items-center justify-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-2 text-sm text-gray-500">
-        <div className="h-[15px] w-[15px] rounded-sm bg-black" />
+const FontColor = memo(
+  ({ fontColor, onChangeSelectedElement }: FontColorProps) => {
+    return (
+      <div className="mt-1 flex rounded-md shadow-sm">
+        <div className="flex cursor-pointer text-[16px] items-center justify-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-2 text-sm text-gray-500">
+          <div className="h-[15px] w-[15px] rounded-sm bg-black" />
+        </div>
+        <input
+          className="w-[35%] px-[10px] py-[5px] rounded-r-md border border-gray-300 outline-none focus:border-indigo-500 focus:border-[2px] focus:ring-indigo-500 sm:text-sm"
+          type="text"
+        />
       </div>
-      <input
-        className="w-[35%] px-[10px] py-[5px] rounded-r-md border border-gray-300 outline-none focus:border-indigo-500 focus:border-[2px] focus:ring-indigo-500 sm:text-sm"
-        type="text"
-      />
-    </div>
-  );
-})
+    );
+  }
+);
 
 type FontStyleProps = {
   fontStyle: string | undefined;
@@ -129,40 +150,37 @@ const FontStyle = memo(
   }
 );
 
-
 type FontSizeProps = {
   fontSize: number | undefined;
   onChangeSelectedElement: (newAttrs: any) => void;
-}
-const FontSize = memo(({
-  fontSize,
-  onChangeSelectedElement,
-}: FontSizeProps) => {
-  const [localFontSize, setLocalFontSize] = useState<number | undefined>(0)
+};
+const FontSize = memo(
+  ({ fontSize, onChangeSelectedElement }: FontSizeProps) => {
+    const [localFontSize, setLocalFontSize] = useState<number | undefined>(0);
 
+    useEffect(() => {
+      setLocalFontSize(fontSize);
+    }, [fontSize]);
 
-  useEffect(() => {
-    setLocalFontSize(fontSize)
-  }, [fontSize])
+    const onHandleBlur = () => {
+      onChangeSelectedElement({
+        fontSize: localFontSize,
+      });
+    };
 
-  const onHandleBlur = () => {
-    onChangeSelectedElement({
-      fontSize: localFontSize,
-    })
+    return (
+      <div className="mt-[5px] ml-[10px] w-full">
+        <input
+          value={localFontSize}
+          onChange={(e: any) => setLocalFontSize(Number(e.target.value))}
+          onBlur={onHandleBlur}
+          className="w-full focus:py-[4px] py-[5px] text-[16px] focus:px-[9px] px-[10px] rounded-md border border-gray-300 outline-none focus:border-indigo-500 focus:border-[2px] focus:ring-indigo-500 sm:text-sm"
+          type="number"
+        />
+      </div>
+    );
   }
-
-  return (
-    <div className="mt-[5px] ml-[10px] w-full">
-      <input
-        value={localFontSize}
-        onChange={(e: any) => setLocalFontSize(Number(e.target.value))}
-        onBlur={onHandleBlur}
-        className="w-full focus:py-[4px] py-[5px] text-[16px] focus:px-[9px] px-[10px] rounded-md border border-gray-300 outline-none focus:border-indigo-500 focus:border-[2px] focus:ring-indigo-500 sm:text-sm"
-        type="number"
-      />
-    </div>
-  );
-})
+);
 
 type FontFamilyProps = {
   fontFamily: string | undefined;
@@ -264,41 +282,32 @@ const Position = memo(
 
 const CanvasEdit = () => {
   // getters
-  const {
-    canvasWidth,
-    canvasHeight
-  } = useTypedSelector(state => state.canvas)
-
+  const { canvasWidth, canvasHeight } = useTypedSelector(
+    (state) => state.canvas
+  );
 
   // setters
-  const {
-    setCanvasWidth,
-    setCanvasHeight
-  } = useActions();
+  const { setCanvasWidth, setCanvasHeight } = useActions();
 
-
-
-  const [localCanvasWidth, setLocalCanvasWidth] = useState(0)
-  const [localCanvasHeight, setLocalCanvasHeight] = useState(0)
-
+  const [localCanvasWidth, setLocalCanvasWidth] = useState(0);
+  const [localCanvasHeight, setLocalCanvasHeight] = useState(0);
 
   useEffect(() => {
-    setLocalCanvasHeight(canvasHeight)
-    setLocalCanvasWidth(canvasWidth)
-  }, [canvasHeight, canvasWidth])
-
+    setLocalCanvasHeight(canvasHeight);
+    setLocalCanvasWidth(canvasWidth);
+  }, [canvasHeight, canvasWidth]);
 
   const onHandleBlur = (pos: string, value: number) => {
-    if (pos === 'x') {
-      setCanvasWidth(value)
-      socket.emit('changeCanvasWidthServer', {id: 3, size: value})
+    if (pos === "x") {
+      setCanvasWidth(value);
+      socket.emit("changeCanvasWidthServer", { id: 3, size: value });
     }
 
-    if (pos === 'y') {
-      setCanvasHeight(value)
-      socket.emit('changeCanvasHeightServer', {id: 3, size: value})
+    if (pos === "y") {
+      setCanvasHeight(value);
+      socket.emit("changeCanvasHeightServer", { id: 3, size: value });
     }
-  }
+  };
 
   return (
     <div className="flex mt-[5px]">

@@ -2,9 +2,11 @@ import { useDispatch } from 'react-redux'
 import { bindActionCreators } from 'redux'
 //
 import { canvasActions } from "../store/slices/canvasSlice";
+import { previewActions } from '../store/slices/previewSlice';
 
 const AllActions: any = {
-    ...canvasActions
+    ...canvasActions,
+    ...previewActions,
 }
 
 
