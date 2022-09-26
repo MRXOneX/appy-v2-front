@@ -8,7 +8,8 @@ export const previewSlice = createSlice({
   name: "preview" as string,
   initialState: {
     image: null,
-    statusImage: 'idle' as 'idle' | 'loading' | 'success' | 'error'
+    statusImage: 'idle' as 'idle' | 'loading' | 'success' | 'error',
+    
   } as any,
   reducers: {
     setImage: (state: any, action: any) => ({

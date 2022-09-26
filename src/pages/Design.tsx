@@ -17,9 +17,9 @@ const Design = () => {
   const {
     setId,
     setTitle,
+    setDesign,
 
     setElements,
-    setSelectedElement,
 
     setCanvasWidth,
     setCanvasHeight,
@@ -35,6 +35,11 @@ const Design = () => {
         );
         console.log(res);
         if (res.status === 200) {
+          setDesign({
+            id: res.data.id,
+            title: res.data.title,
+            typeFile: res.data.typeFile,
+          })
           setElements(JSON.parse(res.data?.elements) ?? []);
           setCanvasWidth(res.data?.canvasWidth);
           setCanvasHeight(res.data?.canvasHeight);
@@ -74,7 +79,7 @@ const Design = () => {
   }, []);
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex overflow-hidden flex-col h-full">
       <Navbar />
       <div className="flex justify-between h-full w-full">
         <LeftSidebar />

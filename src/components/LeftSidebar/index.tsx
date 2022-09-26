@@ -17,7 +17,7 @@ const LeftSidebar = () => {
   });
 
   return (
-    <div className="w-[280px] flex flex-col h-full border-r border-l-neutral-200 p-[10px] bg-white">
+    <div className="w-[280px] overflow-y-auto flex flex-col h-full border-r border-l-neutral-200 p-[10px] bg-white">
       <div className="flex justify-around space-x-1 rounded-lg bg-slate-100 p-2">
         <button
           onClick={() => setActiveTab({

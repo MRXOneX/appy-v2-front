@@ -13,9 +13,11 @@
     "@types/react-dom": "^18.0.6",
     "axios": "^0.27.2",
     "daisyui": "^2.31.0",
+    "image-to-base64": "^2.2.0",
     "konva": "^8.3.12",
     "lodash": "^4.17.21",
     "react": "^18.2.0",
+    "react-code-blocks": "^0.0.9-0",
     "react-dom": "^18.2.0",
     "react-konva": "^18.2.1",
     "react-redux": "^8.0.2",
@@ -54,6 +56,7 @@
     ]
   },
   "devDependencies": {
+    "@types/image-to-base64": "^2.1.0",
     "@types/lodash": "^4.14.185",
     "@types/uuid": "^8.3.4",
     "autoprefixer": "^10.4.11",

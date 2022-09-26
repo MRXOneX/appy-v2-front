@@ -1,6 +1,7 @@
 import { useEffect, memo, useState } from "react";
 // hooks
 import { useTypedSelector, useActions } from "../../hooks";
+// socket
 import socket from "../../socket";
 // types
 import { Element } from "../../utils/types";
@@ -28,28 +29,22 @@ const Edit = () => {
   };
 
   return (
-    <div className="pt-[15px] h-full px-[10px]">
+    <div className="pt-[15px] overflow-y-auto h-full px-[10px]">
       <div className="grid gap-[20px] grid-cols-1 divide-y">
         {selectedElement && (
           <>
-            {(selectedElement.type === "text" ||
-              selectedElement.type === "image") && (
-                <div className="flex flex-col">
-                  <div className="form-control">
-                    <label className="label py-0 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked
-                        className="checkbox checkbox-primary"
-                      />
-
-                      <span className="text-[17px] font-medium font-[Nunito]">
-                        For dynamic replacement
-                      </span>
-                    </label>
-                  </div>
-                </div>
-              )}
+            {selectedElement._type === "dynamic_image" && (
+              <ImageFit
+                position={selectedElement.pos}
+                onChangeSelectedElement={onChangeSelectedElement}
+              />
+            )}
+            {selectedElement._type === "text" && (
+              <ForDynamicReplacement
+                isReplace={selectedElement.isReplace}
+                onChangeSelectedElement={onChangeSelectedElement}
+              />
+            )}
             <div className="flex flex-col pt-[15px]">
               <Position
                 x={selectedElement.x}
@@ -67,24 +62,33 @@ const Edit = () => {
 
         {!selectedElement && <CanvasEdit />}
 
-        {selectedElement && selectedElement.type === "text" && (
-          <div className="pt-[15px]">
-            {/* <span className="text-[18px]">Text</span> */}
-            <FontFamily
-              fontFamily={selectedElement.fontFamily}
-              onChangeSelectedElement={onChangeSelectedElement}
-            />
-            <div className="flex mt-[7px]">
-              <FontStyle
-                fontStyle={selectedElement.fontStyle}
+        {selectedElement && selectedElement._type === "text" && (
+          <Textarea
+            text={selectedElement.text}
+            onChangeSelectedElement={onChangeSelectedElement}
+          />
+        )}
+
+        {selectedElement && selectedElement._type === "text" && (
+          <>
+            <div className="pt-[15px]">
+              {/* <span className="text-[18px]">Text</span> */}
+              <FontFamily
+                fontFamily={selectedElement.fontFamily}
                 onChangeSelectedElement={onChangeSelectedElement}
               />
-              <FontSize
-                fontSize={selectedElement.fontSize}
-                onChangeSelectedElement={onChangeSelectedElement}
-              />
+              <div className="flex mt-[7px]">
+                <FontStyle
+                  fontStyle={selectedElement.fontStyle}
+                  onChangeSelectedElement={onChangeSelectedElement}
+                />
+                <FontSize
+                  fontSize={selectedElement.fontSize}
+                  onChangeSelectedElement={onChangeSelectedElement}
+                />
+              </div>
             </div>
-          </div>
+          </>
         )}
 
         {selectedElement && (
@@ -100,19 +104,163 @@ const Edit = () => {
   );
 };
 
+type TextareaProps = {
+  text: string | undefined;
+  onChangeSelectedElement: (newAttrs: any) => void;
+};
+const Textarea = memo(({ text, onChangeSelectedElement }: TextareaProps) => {
+  const [localText, setLocalText] = useState<undefined | string>("");
+
+  useEffect(() => {
+    setLocalText(text);
+  }, [text]);
+
+  const onHandleBlur = () => {
+    onChangeSelectedElement({
+      text: localText,
+    });
+  };
+
+  return (
+    <div className="mt-[5px] pt-[15px] flex rounded-md shadow-sm">
+      <textarea
+        value={localText}
+        onChange={(e) => setLocalText(e.target.value)}
+        onBlur={onHandleBlur}
+        className="textarea textarea-bordered w-full"
+        placeholder="Text..."
+      ></textarea>
+    </div>
+  );
+});
+
+type ImageFitProps = {
+  position: string | undefined;
+  onChangeSelectedElement: (newAttrs: any) => void;
+};
+const ImageFit = memo(
+  ({ position, onChangeSelectedElement }: ImageFitProps) => {
+    const onHandleChange = (e: any) => {
+      onChangeSelectedElement({
+        pos: e.target.value,
+      });
+    };
+
+    return (
+      <div className="mt-[5px] flex rounded-md shadow-sm">
+        <span className="inline-flex py-[5px] text-[16px] items-center justify-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 text-sm text-gray-500">
+          position
+        </span>
+        <select
+          // onChange={(e: any) => onChangeFontFamily(e.target.value)}
+          onChange={onHandleChange}
+          className="w-full text-[16px] rounded-r-md border border-gray-300 bg-white px-3  focus:border-indigo-500 focus:border-[2px] focus:outline-none focus:ring-indigo-500 sm:text-sm"
+        >
+          <option selected={position === "centre"} value="сentre">
+            centre
+          </option>
+          <option selected={position === "top"} value="top">
+            top
+          </option>
+          <option selected={position === "right top"} value="right top">
+            right top
+          </option>
+          <option selected={position === "right"} value="right">
+            right
+          </option>
+          <option selected={position === "right bottom"} value="right bottom">
+            right bottom
+          </option>
+          <option selected={position === "bottom"} value="bottom">
+            bottom
+          </option>
+          <option selected={position === "left bottom"} value="left bottom">
+            left bottom
+          </option>
+          <option selected={position === "left"} value="left">
+            left
+          </option>
+          <option selected={position === "left top"} value="left top">
+            left top
+          </option>
+        </select>
+      </div>
+    );
+  }
+);
+
+type ForDynamicReplacementProps = {
+  isReplace: boolean | undefined;
+  onChangeSelectedElement: (newAttrs: any) => void;
+};
+
+const ForDynamicReplacement = ({
+  isReplace,
+  onChangeSelectedElement,
+}: ForDynamicReplacementProps) => {
+  return (
+    <div className="flex flex-col">
+      <div className="form-control">
+        <label className="label py-0 cursor-pointer">
+          <input
+            type="checkbox"
+            className="toggle toggle-secondary toggle-sm"
+            checked={isReplace}
+            onChange={(e) =>
+              onChangeSelectedElement({ isReplace: e.target.checked })
+            }
+          />
+
+          <span className="text-[17px] font-medium font-[Nunito]">
+            For dynamic replacement
+          </span>
+        </label>
+      </div>
+    </div>
+  );
+};
+
 type FontColorProps = {
   fontColor: string | undefined;
   onChangeSelectedElement: (newAttrs: any) => void;
 };
 const FontColor = memo(
   ({ fontColor, onChangeSelectedElement }: FontColorProps) => {
+    const [localColor, setLocalColor] = useState<string | undefined>('#fff')
+
+    useEffect(() => {
+      setLocalColor(fontColor)
+    }, [fontColor])
+
+
+
+    const onChangeColor = (color: string) => {
+      onChangeSelectedElement({
+        fill: color
+      })
+      setLocalColor(color)
+    }
+
+    const onHandleBlur = () => {
+      onChangeSelectedElement({
+        fill: localColor
+      })
+    }
+
+
     return (
       <div className="mt-1 flex rounded-md shadow-sm">
-        <div className="flex cursor-pointer text-[16px] items-center justify-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-2 text-sm text-gray-500">
-          <div className="h-[15px] w-[15px] rounded-sm bg-black" />
-        </div>
         <input
-          className="w-[35%] px-[10px] py-[5px] rounded-r-md border border-gray-300 outline-none focus:border-indigo-500 focus:border-[2px] focus:ring-indigo-500 sm:text-sm"
+          value={localColor}
+          onChange={(e) => onChangeColor(e.target.value)}
+          className="flex cursor-pointer h-[35px]  text-[16px] items-center justify-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-2 text-sm text-gray-500"
+          type="color"
+        />
+        <input
+          value={localColor}
+          onChange={(e) => setLocalColor(e.target.value)}
+          onBlur={onHandleBlur}
+          className="w-[35%] px-[10px]  h-[35px] py-[5px] rounded-r-md border border-gray-300 outline-none focus:border-indigo-500 focus:border-[2px] focus:ring-indigo-500 sm:text-sm"
           type="text"
         />
       </div>
@@ -210,12 +358,12 @@ const FontFamily = memo(
           <option selected={fontFamily === "Roboto"} value="Roboto">
             Roboto
           </option>
-          <option selected={fontFamily === "Nunito"} value="Nunito">
+          {/* <option selected={fontFamily === "Nunito"} value="Nunito">
             Nunito
           </option>
           <option selected={fontFamily === "Montserrat"} value="Montserrat">
             Montserrat
-          </option>
+          </option> */}
         </select>
       </div>
     );

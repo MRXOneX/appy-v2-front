@@ -6,10 +6,64 @@ import { Element } from "../../utils/types";
 
 const Graphics = () => {
   return (
-    <div className="flex flex-col px-[10px] pt-[10px]">
+    <div
+    className="flex h-full flex-col px-[10px] pt-[10px]">
       <BasicShapes />
       <Text />
       <Icons />
+      <DynamicImage />
+    </div>
+  );
+};
+
+const DynamicImage = () => {
+
+   // getters
+   const {
+    elements,
+
+    canvasHeight,
+    canvasWidth,
+  } = useTypedSelector((state) => state.canvas);
+
+  // setters
+  const { setSelectedElement, setElements } = useActions();
+
+  const onHandleCreateDynImage = () => {
+    const id = v4();
+    const newElement: Element = {
+      x: Math.round(canvasWidth / 3),
+      y: Math.round(canvasHeight / 3),
+      width: 100,
+      height: 100,
+      type: "rect",
+      _type: 'dynamic_image',
+      fit: 'contain',
+      pos: 'centre',
+      id: id,
+      name: `dynamic_image-${id}`,
+      stroke: 'blue',
+      isReplace: true
+    };
+    setElements([...elements, newElement]);
+    setSelectedElement(newElement);
+  };
+  return (
+    <div className="flex mt-[25px] flex-col">
+      <div className="flex items-center justify-between">
+        <span className="text-[18px] text-slate-800 font-medium">
+          Dynamic Image
+        </span>
+        <button className="text-md font-medium text-indigo-600 hover:text-indigo-500">
+          more
+        </button>
+      </div>
+      <div className="grid gap-3 grid-rows-2 pt-[10px] grid-cols-4">
+        <div onClick={onHandleCreateDynImage} className="bg-teal-200 cursor-pointer hover:bg-teal-300  rounded-md w-[45px] p-[10px] h-[45px]">
+          <div className=" w-full h-full border-[2px] border-dashed border-indigo-500" />
+        </div>
+        <div className="bg-teal-200 cursor-pointer hover:bg-teal-300  rounded-md w-[45px] h-[45px]" />
+      </div>
     </div>
   );
 };
@@ -34,9 +88,14 @@ const Icons = () => {
       width: 100,
       height: 100,
       type: "image",
-      image: image,
+      _type: 'image',
+      image: {
+        url: image,
+        isURL: true
+      },
       id: id,
       name: `image-${id}`,
+      isReplace: false,
     };
     setElements([...elements, newElement]);
     setSelectedElement(newElement);
@@ -66,9 +125,6 @@ const Icons = () => {
         <div className="bg-teal-200 cursor-pointer hover:bg-teal-300  rounded-md w-[45px] h-[45px]"></div>
         <div className="bg-teal-200 cursor-pointer hover:bg-teal-300  rounded-md w-[45px] h-[45px]"></div>
         <div className="bg-teal-200 cursor-pointer hover:bg-teal-300  rounded-md w-[45px] h-[45px]"></div>
-        <div className="bg-teal-200 cursor-pointer hover:bg-teal-300  rounded-md w-[45px] h-[45px]"></div>
-        <div className="bg-teal-200 cursor-pointer hover:bg-teal-300  rounded-md w-[45px] h-[45px]"></div>
-        <div className="bg-teal-200 cursor-pointer hover:bg-teal-300  rounded-md w-[45px] h-[45px]"></div>
       </div>
     </div>
   );
@@ -89,12 +145,13 @@ const Text = () => {
   const onHandleCreateText = (text: string, size: number): void => {
     const id = v4();
     const newElement: Element = {
-      isReplace: true,
+      isReplace: false,
       x: Math.round(canvasWidth / 3),
       y: Math.round(canvasHeight / 3),
       width: 100,
       height: 100,
       type: "text",
+      _type: "text",
       id: id,
       name: `text-${id}`,
       fill: "black",
@@ -157,6 +214,7 @@ const BasicShapes = () => {
       width: 100,
       height: 100,
       type: "rect",
+      _type: 'rect',
       id: id,
       name: `rect-${id}`,
       fill: "black",
@@ -203,7 +261,9 @@ const BasicShapes = () => {
         >
           <div className="bg-black w-full h-full rounded-full" />
         </div>
-        <div className="bg-teal-200 cursor-pointer hover:bg-teal-300  rounded-md w-[45px] h-[45px]"></div>
+        {/* <div className="bg-teal-200 cursor-pointer hover:bg-teal-300  rounded-md w-[45px] p-[10px] h-[45px]">
+          <div className=" w-full h-full border-[2px] border-dashed border-indigo-500" />
+        </div> */}
         <div className="bg-teal-200 cursor-pointer hover:bg-teal-300 rounded-md w-[45px] h-[45px]"></div>
         <div className="bg-teal-200 cursor-pointer hover:bg-teal-300  rounded-md w-[45px] h-[45px]"></div>
         <div className="bg-teal-200 cursor-pointer hover:bg-teal-300 rounded-md w-[45px] h-[45px]"></div>

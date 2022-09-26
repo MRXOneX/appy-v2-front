@@ -1,24 +1,24 @@
-
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import axios from "axios";
 // hooks
 import { useTypedSelector, useActions } from "../hooks";
 // icons
 import Logo from "../utils/svg/logo_appy.svg";
 import Delete from "../utils/svg/icon_delete.svg";
-import Save from '../utils/svg/save.svg'
-import window from '../utils/svg/window.svg'
-
-
+import Save from "../utils/svg/save.svg";
+import window from "../utils/svg/window.svg";
 
 const Navbar = () => {
+
+
+  const { id } = useParams()
   // getters
-  const { id, selectedElement, elements }: any = useTypedSelector(
+  const { design, canvasWidth, canvasHeight, selectedElement, elements }: any = useTypedSelector(
     (state) => state.canvas
   );
 
   // setters
-  const { setElements, setSelectedElement } = useActions();
+  const { setElements, setSelectedElement, setDesign } = useActions();
 
   const onHandleDelete = () => {
     setElements(elements.filter((el: any) => el.id !== selectedElement.id));
@@ -28,16 +28,18 @@ const Navbar = () => {
   const onHandleSave = async () => {
     try {
       const res = await axios.post("http://localhost:3333/design/save", {
-        designId: id,
+        designId: Number(id),
         elements: JSON.stringify(elements),
+        canvasWidth,
+        canvasHeight,
+        typeFile: design.typeFile
       });
-      console.log(res);
     } catch (error) {}
   };
 
   const navigate = useNavigate();
   return (
-    <div className="h-[55px] flex items-center justify-between border border-neutral-200  bg-white">
+    <div className="min-h-[50px] flex items-center justify-between border border-neutral-200  bg-white">
       <div className="w-[280px] flex justify-center">
         <img
           className="cursor-pointer"
@@ -54,14 +56,14 @@ const Navbar = () => {
         style={{
           width: "calc(100% - 560px)",
         }}
-        className="flex"
+        className="flex justify-between"
       >
         <div className="flex">
-          <button className="bg-cyan-100">undo</button>
-          <button className="ml-[10px] bg-cyan-100">redo</button>
+          {/* <button className="bg-cyan-100">undo</button>
+          <button className="ml-[10px] bg-cyan-100">redo</button> */}
 
           <input
-            value="Test file"
+            value={design?.title}
             className="border focus:border-[2px] focus:px-[6px] focus:py-[1px] outline-none focus:border-indigo-500 border-gray-300 px-[7px] py-[2px] rounded-md"
             type="text"
           />
@@ -74,6 +76,19 @@ const Navbar = () => {
             <img width={25} height={25} src={Delete} alt="del" />
           </button>
         )}
+        <div className="flex items-center">
+        <select onChange={e => setDesign({...design, typeFile: e.target.value})} className="select select-bordered w-full select-sm">
+          <option selected={design?.typeFile === 'jpg'}>
+            jpg
+          </option>
+          <option  selected={design?.typeFile === 'png'}>
+            png
+          </option>
+          <option  selected={design?.typeFile === 'pdf'}>
+            pdf
+          </option>
+        </select>
+        </div>
       </div>
       <div className="w-[280px] flex justify-around">
         <button

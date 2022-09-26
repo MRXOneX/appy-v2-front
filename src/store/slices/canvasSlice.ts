@@ -66,6 +66,7 @@ type TDesign = {
 type TInitialState = {
   id: number | null
   title: string;
+  design: any
 
   canvasWidth: number
   canvasHeight: number
@@ -80,6 +81,7 @@ export const canvasSlice = createSlice({
   initialState: {
     id: null,
     title: '',
+    design: null,
 
     canvasWidth: 300,
     canvasHeight: 500,
@@ -95,6 +97,10 @@ export const canvasSlice = createSlice({
     setTitle: (state: TInitialState, action: any) => ({
       ...state,
       title: action.payload,
+    }),
+    setDesign: (state: TInitialState, action: any) => ({
+      ...state,
+      design: action.payload
     }),
 
     setElements: (state: TInitialState, action: any) => ({

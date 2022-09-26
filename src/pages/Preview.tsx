@@ -1,11 +1,19 @@
 import axios from "axios";
 import { memo, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
+//
+// import imageToBase64 from "image-to-base64/browser";
+// components
+import API from "../components/PreviewComponents/API";
+import CODE from "../components/PreviewComponents/CODE";
+import Info from "../components/PreviewComponents/Info";
+// hooks
 import { useActions, useTypedSelector } from "../hooks";
+import convertBase64 from "../utils/convertBase64";
 
 const Preview = () => {
   // getters
-  const { canvasWidth, canvasHeight, title } = useTypedSelector(
+  const { canvasWidth, canvasHeight } = useTypedSelector(
     (state) => state.canvas
   );
   // setters
@@ -19,14 +27,33 @@ const Preview = () => {
     setCanvasHeight,
 
     // preview
-    setImage, 
-    setStatusImage
+    setImage,
+    setStatusImage,
   } = useActions();
-
-  
 
   const [texts, setTexts] = useState([]);
   const [images, setImages] = useState([]);
+
+  const [activeTab, setActiveTab] = useState({
+    name: "api",
+    component: <API />,
+  });
+
+  const onChangeActiveTab = (nameTab: string) => {
+    if (nameTab === "api") {
+      setActiveTab({
+        name: "api",
+        component: <API />,
+      });
+    }
+
+    if (nameTab === "code") {
+      setActiveTab({
+        name: "code",
+        component: <CODE />,
+      });
+    }
+  };
 
   const param = useParams();
 
@@ -47,7 +74,13 @@ const Preview = () => {
 
           setTexts(
             parseElements.filter(
-              (el: any) => el.type === "text" && el.isReplace
+              (el: any) => el._type === "text" && el.isReplace
+            )
+          );
+
+          setImages(
+            parseElements.filter(
+              (el: any) => el._type === "dynamic_image" && el.isReplace
             )
           );
         }
@@ -55,21 +88,24 @@ const Preview = () => {
     })();
 
     return () => {
-      setImage(null)
-      setStatusImage('idle')
-    }
+      setImage(null);
+      setStatusImage("idle");
+    };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [param?.id]);
 
-  
-
-  const onHandlePreview = async (designId: string, localTexts: any) => {
+  const onHandlePreview = async (
+    designId: string,
+    localTexts: any,
+    localImages: any
+  ) => {
     setImage(null);
     setStatusImage("loading");
     try {
       const res = await axios.post("http://localhost:3333/design/preview", {
         texts: localTexts,
+        images: localImages,
         designId: Number(designId),
       });
 
@@ -84,54 +120,29 @@ const Preview = () => {
 
   const navigate = useNavigate();
   return (
-    <div className="h-full relative flex flex-col items-center justify-center">
+    <div className="h-full overflow-y-auto py-[30px] relative flex flex-col items-center">
       <button
         onClick={() => navigate(`/${param?.id}`)}
-        className="absolute font-medium text-indigo-700 hover:text-indigo-900 left-[20px] top-[20px]"
+        className="fixed z-10 font-medium text-indigo-700 hover:text-indigo-900 left-[20px] top-[20px]"
       >
         back
       </button>
-      <Info title={title} />
-      <div className="flex pt-[50px]">
-        <Enters 
-          onHandlePreview={onHandlePreview} 
-          designId={param?.id} texts={texts} images={images} />
-        <Window canvasHeight={canvasHeight} canvasWidth={canvasWidth} />
+      <Info activeTab={activeTab} onChangeActiveTab={onChangeActiveTab} />
+      <div className="flex flex-col pt-[30px]">
+        {activeTab.component}
+        <div className="flex pt-[40px]">
+          <Enters
+            onHandlePreview={onHandlePreview}
+            designId={param?.id}
+            texts={texts}
+            images={images}
+          />
+          <Window canvasHeight={canvasHeight} canvasWidth={canvasWidth} />
+        </div>
       </div>
     </div>
   );
 };
-
-type InfoProps = {
-  title: string;
-};
-const Info = memo(({ title }: InfoProps) => {
-  const [localTitle, setLocalTitle] = useState("");
-
-  useEffect(() => {
-    setLocalTitle(title);
-  }, [title]);
-
-  return (
-    <div className="p-[15px] flex justify-between w-[950px] shadow-md rounded-lg bg-white">
-      <div className="flex rounded-md shadow-sm">
-        <span className="py-[3px] text-[18px] items-center justify-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-[15px] text-gray-500">
-          Title
-        </span>
-        <input
-          value={localTitle}
-          onChange={(e) => setLocalTitle(e.target.value)}
-          // onBlur={() => onHandleBlur("height", localHeight)}
-          className="w-full px-[10px] focus:px-[9px] rounded-r-md border border-gray-300 outline-none focus:border-indigo-500 focus:border-[2px] focus:ring-indigo-500 sm:text-sm"
-          type="text"
-        />
-      </div>
-      <button className="bg-indigo-500 hover:bg-indigo-600 py-[3px] px-[12px] text-white font-[Nunito] text-[18px] rounded-md font-bold">
-        preview
-      </button>
-    </div>
-  );
-});
 
 type EntersProps = {
   texts: any;
@@ -139,78 +150,129 @@ type EntersProps = {
 
   designId: string | undefined;
 
-  onHandlePreview: any
+  onHandlePreview: any;
 };
-const Enters = memo(({ texts, images, designId, onHandlePreview }: EntersProps) => {
-  const [localTexts, setLocalTexts] = useState<any>({});
+const Enters = memo(
+  ({ texts, images, designId, onHandlePreview }: EntersProps) => {
+    const [localTexts, setLocalTexts] = useState<any>({});
+    const [localImages, setLocalImages] = useState<any>({});
+    console.log(localImages);
 
-  useEffect(() => {
-    let newTexts = {};
+    useEffect(() => {
+      let newTexts = {};
+      let newImages = {};
 
-    texts.forEach((text: any) => {
-      newTexts = {
-        ...newTexts,
-        [text.id]: {
-          text: text.text,
-          id: text.id,
-          isReplace: text.isReplace,
-        },
-      };
-    });
+      texts.forEach((text: any) => {
+        newTexts = {
+          ...newTexts,
+          [text.id]: {
+            text: text.text,
+            id: text.id,
+            isReplace: text.isReplace,
+          },
+        };
+      });
 
-    setLocalTexts(newTexts);
+      images.forEach((image: any) => {
+        newImages = {
+          ...newImages,
+          [image.id]: {
+            base64: undefined,
+            id: image.id,
+            isReplace: image.isReplace,
+          },
+        };
+      });
 
-  }, [texts, images]);
+      setLocalTexts(newTexts);
+      setLocalImages(newImages);
+    }, [texts, images]);
 
-  
-
-  return (
-    <div>
-      <div className="p-[15px] max-h-[500px] overflow-y-auto shadow-md w-[300px] rounded-lg bg-white">
-        <div className="flex flex-col">
-          {texts.length > 0 && (
+    return (
+      <div>
+        <div className="p-[15px] max-h-[500px] overflow-y-auto shadow-md w-[300px] rounded-lg bg-white">
+          <div className="flex flex-col">
+            {texts.length > 0 && (
+              <>
+                <div className="w-full text-center">
+                  <span className="text-[22px] text-slate-800 font-bold font-[Nunito]">
+                    Text
+                  </span>
+                </div>
+                <div className="flex flex-col">
+                  {texts.map((text: any) => (
+                    <Text
+                      key={text.id}
+                      id={text.id}
+                      text={text.text}
+                      setLocalTexts={setLocalTexts}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+          {images?.length > 0 && (
             <>
-              <div className="w-full text-center">
+              <div
+                style={{
+                  paddingTop: texts.length > 0 ? "30px" : "0",
+                }}
+                className="w-full text-center"
+              >
                 <span className="text-[22px] text-slate-800 font-bold font-[Nunito]">
-                  Text
+                  Image
                 </span>
               </div>
-              <div className="flex flex-col">
-                {texts.map((text: any) => (
-                  <Text
-                    key={text.id}
-                    id={text.id}
-                    text={text.text}
-                    setLocalTexts={setLocalTexts}
-                  />
-                ))}
-              </div>
+              {images.map((image: any) => (
+                <Image
+                  key={image.id}
+                  id={image.id}
+                  setLocalImages={setLocalImages}
+                />
+              ))}
             </>
           )}
         </div>
-        <div
-          style={{
-            paddingTop: texts.length > 0 ? "30px" : "0",
-          }}
-          className="w-full text-center"
+        <button
+          onClick={() => onHandlePreview(designId, localTexts, localImages)}
         >
-          <span className="text-[22px] text-slate-800 font-bold font-[Nunito]">
-            Image
-          </span>
-        </div>
-        <label
-          className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-          htmlFor="small_size"
-        >
-          Small file input
-        </label>
-        <input
-          className="block w-full text-sm text-gray-900 bg-gray-50 rounded-r-lg border border-gray-300 cursor-pointer dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-          id="small_size"
-          type="file"
-        />
+          preview
+        </button>
       </div>
-      <button onClick={() => onHandlePreview(designId, localTexts)}>preview</button>
+    );
+  }
+);
+
+type ImageProps = {
+  id: string;
+  setLocalImages: any;
+};
+const Image = memo(({ id, setLocalImages }: ImageProps) => {
+  const onChangeImage = async (image: any) => {
+    const base64 = await convertBase64(image);
+    setLocalImages((prev: any) => {
+      prev[id].base64 = base64;
+
+      return prev;
+    });
+  };
+
+  return (
+    <div className="w-full">
+      <label
+        className="mb-[2px] mt-[7px] flex text-[17px] font-medium text-gray-900"
+        htmlFor="small_size"
+      >
+        ID: <span className="truncate text-gray-700  ml-[10px]">{id}</span>
+      </label>
+      <input
+        accept="image/*"
+        onChange={(e: any) => onChangeImage(e.target.files[0])}
+        className="block w-full text-sm text-gray-900 bg-gray-50 rounded-r-lg border border-gray-300 cursor-pointer dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+        id="small_size"
+        type="file"
+      />
     </div>
   );
 });
@@ -276,13 +338,16 @@ const Window = memo(({ canvasWidth, canvasHeight }: WindowType) => {
           Preview
         </span> */}
         {statusImage === "loading" && (
-          <div 
-          className="flex items-center justify-center border-dashed border-2 border-indigo-600"
-          style={{
-            height: canvasHeight,
-            width: canvasWidth,
-          }}>
-            <span className="bg-indigo-500 font-[Nunito] py-[3px] px-[12px] font-bold text-[19px] rounded-md text-white">loading...</span>
+          <div
+            className="flex items-center justify-center border-dashed border-2 border-indigo-600"
+            style={{
+              height: canvasHeight,
+              width: canvasWidth,
+            }}
+          >
+            <span className="bg-indigo-500 font-[Nunito] py-[3px] px-[12px] font-bold text-[19px] rounded-md text-white">
+              loading...
+            </span>
           </div>
         )}
         {statusImage === "success" && image && (
