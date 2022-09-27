@@ -39,6 +39,7 @@ const Design = () => {
             id: res.data.id,
             title: res.data.title,
             typeFile: res.data.typeFile,
+            files: res.data.files,
           })
           setElements(JSON.parse(res.data?.elements) ?? []);
           setCanvasWidth(res.data?.canvasWidth);

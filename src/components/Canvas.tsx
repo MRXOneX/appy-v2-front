@@ -50,7 +50,7 @@ const Canvas = ({ elements }: any) => {
         >
           <Layer>
             {elements.map((elem: any, index: number) => {
-              switch (elem._type) {
+              switch (elem.type) {
                 case "rect":
                   return (
                     <CustomRect
@@ -102,23 +102,23 @@ const Canvas = ({ elements }: any) => {
                       }}
                     />
                   );
-                case "dynamic_image":
-                  return (
-                    <CustomDynamicImage
-                      key={elem.id}
-                      shapeProps={elem}
-                      isSelected={elem.id === selectedElement?.id}
-                      onSelect={(shape: any) => {
-                        setSelectedElement(shape);
-                      }}
-                      onChange={(newAttrs: any) => {
-                        const elems = elements.slice();
-                        elems[index] = newAttrs;
-                        setSelectedElement(newAttrs);
-                        setElements(elems);
-                      }}
-                    />
-                  );
+                // case "image":
+                //   return (
+                //     <CustomDynamicImage
+                //       key={elem.id}
+                //       shapeProps={elem}
+                //       isSelected={elem.id === selectedElement?.id}
+                //       onSelect={(shape: any) => {
+                //         setSelectedElement(shape);
+                //       }}
+                //       onChange={(newAttrs: any) => {
+                //         const elems = elements.slice();
+                //         elems[index] = newAttrs;
+                //         setSelectedElement(newAttrs);
+                //         setElements(elems);
+                //       }}
+                //     />
+                //   );
                 default:
                   return <></>;
               }

@@ -39,12 +39,13 @@ const Edit = () => {
                 onChangeSelectedElement={onChangeSelectedElement}
               />
             )}
-            {selectedElement._type === "text" && (
-              <ForDynamicReplacement
-                isReplace={selectedElement.isReplace}
-                onChangeSelectedElement={onChangeSelectedElement}
-              />
-            )}
+            {(selectedElement._type === "text" ||
+              selectedElement._type === "qrcode") && (
+                <ForDynamicReplacement
+                  isReplace={selectedElement.isReplace}
+                  onChangeSelectedElement={onChangeSelectedElement}
+                />
+              )}
             <div className="flex flex-col pt-[15px]">
               <Position
                 x={selectedElement.x}
@@ -91,14 +92,15 @@ const Edit = () => {
           </>
         )}
 
-        {selectedElement && (
-          <div className="pt-[15px]">
-            <FontColor
-              fontColor={selectedElement.fill}
-              onChangeSelectedElement={onChangeSelectedElement}
-            />
-          </div>
-        )}
+        {selectedElement &&
+          selectedElement._type !== ("image" || "dynamic_image") && (
+            <div className="pt-[15px]">
+              <FontColor
+                fontColor={selectedElement.fill}
+                onChangeSelectedElement={onChangeSelectedElement}
+              />
+            </div>
+          )}
       </div>
     </div>
   );
@@ -226,41 +228,38 @@ type FontColorProps = {
 };
 const FontColor = memo(
   ({ fontColor, onChangeSelectedElement }: FontColorProps) => {
-    const [localColor, setLocalColor] = useState<string | undefined>('#fff')
+    const [localColor, setLocalColor] = useState<string | undefined>("#fff");
 
     useEffect(() => {
-      setLocalColor(fontColor)
-    }, [fontColor])
-
-
+      setLocalColor(fontColor);
+    }, [fontColor]);
 
     const onChangeColor = (color: string) => {
       onChangeSelectedElement({
-        fill: color
-      })
-      setLocalColor(color)
-    }
+        fill: color,
+      });
+      setLocalColor(color);
+    };
 
     const onHandleBlur = () => {
       onChangeSelectedElement({
-        fill: localColor
-      })
-    }
-
+        fill: localColor,
+      });
+    };
 
     return (
       <div className="mt-1 flex rounded-md shadow-sm">
         <input
           value={localColor}
           onChange={(e) => onChangeColor(e.target.value)}
-          className="flex cursor-pointer h-[35px]  text-[16px] items-center justify-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-2 text-sm text-gray-500"
+          className="flex cursor-pointer w-[40px] h-[25px]  text-[16px] items-center justify-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-2 text-sm text-gray-500"
           type="color"
         />
         <input
           value={localColor}
           onChange={(e) => setLocalColor(e.target.value)}
           onBlur={onHandleBlur}
-          className="w-[35%] px-[10px]  h-[35px] py-[5px] rounded-r-md border border-gray-300 outline-none focus:border-indigo-500 focus:border-[2px] focus:ring-indigo-500 sm:text-sm"
+          className="w-[35%] px-[6px]  h-[25px] py-[5px] rounded-r-md border border-gray-300 outline-none focus:border-indigo-500 focus:border-[2px] focus:ring-indigo-500 sm:text-sm"
           type="text"
         />
       </div>

@@ -6,20 +6,74 @@ import { Element } from "../../utils/types";
 
 const Graphics = () => {
   return (
-    <div
-    className="flex h-full flex-col px-[10px] pt-[10px]">
+    <div className="flex h-full flex-col px-[10px] pt-[10px]">
       <BasicShapes />
       <Text />
       <Icons />
       <DynamicImage />
+      <Other />
+    </div>
+  );
+};
+
+const Other = () => {
+
+ // getters
+ const {
+  elements,
+
+  canvasHeight,
+  canvasWidth,
+} = useTypedSelector((state) => state.canvas);
+
+// setters
+const { setSelectedElement, setElements } = useActions();
+
+const onHandleCreateQRcode = (image: string): void => {
+  const id = v4();
+  const newElement: Element = {
+    x: Math.round(canvasWidth / 3),
+    y: Math.round(canvasHeight / 3),
+    width: 100,
+    height: 100,
+    type: "image",
+    _type: "qrcode",
+    image: {
+      url: image,
+      isURL: true,
+    },
+    id: id,
+    name: `qrcode-${id}`,
+    isReplace: true,
+  };
+  setElements([...elements, newElement]);
+  setSelectedElement(newElement);
+};
+
+
+  return (
+    <div className="flex mt-[25px] pb-[150px] flex-col">
+      <div className="flex items-center justify-between">
+        <span className="text-[18px] text-slate-800 font-medium">Other</span>
+        <button className="text-md font-medium text-indigo-600 hover:text-indigo-500">
+          more
+        </button>
+      </div>
+      <div className="grid gap-3 grid-rows-1 pt-[10px] grid-cols-4">
+        <div
+          onClick={() => onHandleCreateQRcode("https://i.imgur.com/f0GVtmv.png")}
+          className="bg-teal-200 cursor-pointer hover:bg-teal-300 p-[5px] rounded-md w-[45px] h-[45px]"
+        >
+          <img src="https://i.imgur.com/f0GVtmv.png" alt="like" />
+        </div>
+      </div>
     </div>
   );
 };
 
 const DynamicImage = () => {
-
-   // getters
-   const {
+  // getters
+  const {
     elements,
 
     canvasHeight,
@@ -37,13 +91,13 @@ const DynamicImage = () => {
       width: 100,
       height: 100,
       type: "rect",
-      _type: 'dynamic_image',
-      fit: 'contain',
-      pos: 'centre',
+      _type: "dynamic_image",
+      fit: "contain",
+      pos: "centre",
       id: id,
       name: `dynamic_image-${id}`,
-      stroke: 'blue',
-      isReplace: true
+      stroke: "blue",
+      isReplace: true,
     };
     setElements([...elements, newElement]);
     setSelectedElement(newElement);
@@ -58,8 +112,11 @@ const DynamicImage = () => {
           more
         </button>
       </div>
-      <div className="grid gap-3 grid-rows-2 pt-[10px] grid-cols-4">
-        <div onClick={onHandleCreateDynImage} className="bg-teal-200 cursor-pointer hover:bg-teal-300  rounded-md w-[45px] p-[10px] h-[45px]">
+      <div className="grid gap-3 grid-rows-1 pt-[10px] grid-cols-4">
+        <div
+          onClick={onHandleCreateDynImage}
+          className="bg-teal-200 cursor-pointer hover:bg-teal-300  rounded-md w-[45px] p-[10px] h-[45px]"
+        >
           <div className=" w-full h-full border-[2px] border-dashed border-indigo-500" />
         </div>
         <div className="bg-teal-200 cursor-pointer hover:bg-teal-300  rounded-md w-[45px] h-[45px]" />
@@ -88,10 +145,10 @@ const Icons = () => {
       width: 100,
       height: 100,
       type: "image",
-      _type: 'image',
+      _type: "image",
       image: {
         url: image,
-        isURL: true
+        isURL: true,
       },
       id: id,
       name: `image-${id}`,
@@ -109,7 +166,7 @@ const Icons = () => {
           more
         </button>
       </div>
-      <div className="grid gap-3 grid-rows-2 pt-[10px] grid-cols-4">
+      <div className="grid gap-3 grid-rows-1 pt-[10px] grid-cols-4">
         <div
           onClick={() => onHandleCreateIcon("https://i.imgur.com/RKDlh1y.png")}
           className="bg-teal-200 cursor-pointer hover:bg-teal-300 p-[5px] rounded-md w-[45px] h-[45px]"
@@ -122,9 +179,6 @@ const Icons = () => {
         >
           <img src="https://i.imgur.com/ju4gYV6.png" alt="smile" />
         </div>
-        <div className="bg-teal-200 cursor-pointer hover:bg-teal-300  rounded-md w-[45px] h-[45px]"></div>
-        <div className="bg-teal-200 cursor-pointer hover:bg-teal-300  rounded-md w-[45px] h-[45px]"></div>
-        <div className="bg-teal-200 cursor-pointer hover:bg-teal-300  rounded-md w-[45px] h-[45px]"></div>
       </div>
     </div>
   );
@@ -214,7 +268,7 @@ const BasicShapes = () => {
       width: 100,
       height: 100,
       type: "rect",
-      _type: 'rect',
+      _type: "rect",
       id: id,
       name: `rect-${id}`,
       fill: "black",
@@ -248,7 +302,7 @@ const BasicShapes = () => {
           more
         </button>
       </div>
-      <div className="grid gap-3 grid-rows-2 pt-[10px] grid-cols-4">
+      <div className="grid gap-3 grid-rows-1 pt-[10px] grid-cols-4">
         <div
           onClick={onHandleCreateRect}
           className="bg-teal-200 cursor-pointer hover:bg-teal-300 rounded-md w-[45px] p-[10px] h-[45px]"
@@ -264,11 +318,6 @@ const BasicShapes = () => {
         {/* <div className="bg-teal-200 cursor-pointer hover:bg-teal-300  rounded-md w-[45px] p-[10px] h-[45px]">
           <div className=" w-full h-full border-[2px] border-dashed border-indigo-500" />
         </div> */}
-        <div className="bg-teal-200 cursor-pointer hover:bg-teal-300 rounded-md w-[45px] h-[45px]"></div>
-        <div className="bg-teal-200 cursor-pointer hover:bg-teal-300  rounded-md w-[45px] h-[45px]"></div>
-        <div className="bg-teal-200 cursor-pointer hover:bg-teal-300 rounded-md w-[45px] h-[45px]"></div>
-        <div className="bg-teal-200 cursor-pointer hover:bg-teal-300 rounded-md w-[45px] h-[45px]"></div>
-        <div className="bg-teal-200 cursor-pointer hover:bg-teal-300 rounded-md w-[45px] h-[45px]"></div>
       </div>
     </div>
   );
