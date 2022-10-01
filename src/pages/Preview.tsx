@@ -62,7 +62,7 @@ const Preview = () => {
     (async () => {
       try {
         const res = await axios.get(
-          `${process.env.api_back}/design/${param?.id}`
+          `https://appy3.herokuapp.com/design/${param?.id}`
         );
         console.log(res);
         if (res.status === 200) {
@@ -111,7 +111,7 @@ const Preview = () => {
     setImage(null);
     setStatusImage("loading");
     try {
-      const res = await axios.post(`${process.env.api_back}/design/preview`, {
+      const res = await axios.post(`https://appy3.herokuapp.com/design/preview`, {
         texts: localTexts,
         images: localImages,
         qrcodes: localQrcodes,

@@ -11,7 +11,7 @@ const Main = () => {
 
   const onHandleCreateDesign = async () => {
     try {
-      const res: any = await axios.post(`${process.env.api_back}/design/create`, title && {
+      const res: any = await axios.post(`https://appy3.herokuapp.com/design/create`, title && {
         title,
       });
 

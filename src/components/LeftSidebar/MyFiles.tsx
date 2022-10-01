@@ -23,7 +23,7 @@ const MyFiles = () => {
 
   const uploadFile = async () => {
     try {
-      const res = await axios.post(`${process.env.api_back}/design/upload`, {
+      const res = await axios.post(`https://appy3.herokuapp.com/design/upload`, {
         designId: design.id,
         file,
       });

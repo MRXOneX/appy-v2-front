@@ -31,7 +31,7 @@ const Design = () => {
     (async () => {
       try {
         const res = await axios.get(
-          `${process.env.api_back}/design/${param?.id}`
+          `https://appy3.herokuapp.com/design/${param?.id}`
         );
         console.log(res);
         if (res.status === 200) {

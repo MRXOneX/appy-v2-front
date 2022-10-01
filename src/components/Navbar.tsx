@@ -27,7 +27,7 @@ const Navbar = () => {
 
   const onHandleSave = async () => {
     try {
-      const res = await axios.post(`${process.env.api_back}/design/save`, {
+      const res = await axios.post(`https://appy3.herokuapp.com/design/save`, {
         designId: Number(id),
         elements: JSON.stringify(elements),
         canvasWidth,
