@@ -1,4 +1,4 @@
-import { v4 } from "uuid";
+import shortid from "shortid";
 //
 import { useActions, useTypedSelector } from "../../hooks";
 // types
@@ -30,7 +30,7 @@ const Other = () => {
 const { setSelectedElement, setElements } = useActions();
 
 const onHandleCreateQRcode = (image: string): void => {
-  const id = v4();
+  const id = shortid.generate();
   const newElement: Element = {
     x: Math.round(canvasWidth / 3),
     y: Math.round(canvasHeight / 3),
@@ -84,7 +84,7 @@ const DynamicImage = () => {
   const { setSelectedElement, setElements } = useActions();
 
   const onHandleCreateDynImage = () => {
-    const id = v4();
+    const id = shortid.generate();
     const newElement: Element = {
       x: Math.round(canvasWidth / 3),
       y: Math.round(canvasHeight / 3),
@@ -138,7 +138,7 @@ const Icons = () => {
   const { setSelectedElement, setElements } = useActions();
 
   const onHandleCreateIcon = (image: string): void => {
-    const id = v4();
+    const id = shortid.generate();
     const newElement: Element = {
       x: Math.round(canvasWidth / 3),
       y: Math.round(canvasHeight / 3),
@@ -197,7 +197,7 @@ const Text = () => {
   const { setSelectedElement, setElements } = useActions();
 
   const onHandleCreateText = (text: string, size: number): void => {
-    const id = v4();
+    const id = shortid.generate();
     const newElement: Element = {
       isReplace: false,
       x: Math.round(canvasWidth / 3),
@@ -261,7 +261,7 @@ const BasicShapes = () => {
   const { setSelectedElement, setElements } = useActions();
 
   const onHandleCreateRect = () => {
-    const id = v4();
+    const id = shortid.generate();
     const newElement: Element = {
       x: Math.round(canvasWidth / 3),
       y: Math.round(canvasHeight / 3),

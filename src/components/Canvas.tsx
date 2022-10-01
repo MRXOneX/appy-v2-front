@@ -31,7 +31,7 @@ const Canvas = ({ elements }: any) => {
       style={{
         width: "calc(100% - 560px)",
       }}
-      className="h-full flex items-center justify-center"
+      className="h-full overflow-auto flex items-center justify-center"
     >
       <div
         style={{

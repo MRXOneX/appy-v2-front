@@ -27,7 +27,7 @@ const Navbar = () => {
 
   const onHandleSave = async () => {
     try {
-      const res = await axios.post("http://localhost:3333/design/save", {
+      const res = await axios.post(`${process.env.api_back}/design/save`, {
         designId: Number(id),
         elements: JSON.stringify(elements),
         canvasWidth,

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 //
-import { v4 } from "uuid";
+import shortid from "shortid";
 // hooks
 import { useActions, useTypedSelector } from "../../hooks";
 // utils
@@ -17,13 +17,13 @@ const MyFiles = () => {
     const image: any = await convertBase64(file);
     setFile({
       base64: image,
-      name: `${v4()}_${file.name}`,
+      name: `${shortid.generate()}_${file.name}`,
     });
   };
 
   const uploadFile = async () => {
     try {
-      const res = await axios.post("http://localhost:3333/design/upload", {
+      const res = await axios.post(`${process.env.api_back}/design/upload`, {
         designId: design.id,
         file,
       });
@@ -49,7 +49,7 @@ const MyFiles = () => {
   const { setSelectedElement, setElements } = useActions();
 
   const onHandleCreateIcon = (image: string): void => {
-    const id = v4();
+    const id = shortid.generate();
     const newElement: any = {
       x: Math.round(canvasWidth / 3),
       y: Math.round(canvasHeight / 3),

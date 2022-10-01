@@ -58,7 +58,7 @@ const Tabs = ({ onChangeActiveTab, activeTab }: TabsProps) => {
     <div className="tabs tabs-boxed font-medium">
       <button 
         onClick={() => onChangeActiveTab('api')}
-        className={`tab ${activeTab.name === 'api' ? 'tab-active' : ''}`}
+        className={`tab  ${activeTab.name === 'api' ? 'tab-active' : ''}`}
       >
         API
       </button>

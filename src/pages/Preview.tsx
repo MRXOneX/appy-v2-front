@@ -33,6 +33,7 @@ const Preview = () => {
 
   const [texts, setTexts] = useState([]);
   const [images, setImages] = useState([]);
+  const [qrcodes, setQrcodes] = useState([]);
 
   const [activeTab, setActiveTab] = useState({
     name: "api",
@@ -61,7 +62,7 @@ const Preview = () => {
     (async () => {
       try {
         const res = await axios.get(
-          `http://localhost:3333/design/${param?.id}`
+          `${process.env.api_back}/design/${param?.id}`
         );
         console.log(res);
         if (res.status === 200) {
@@ -83,6 +84,12 @@ const Preview = () => {
               (el: any) => el._type === "dynamic_image" && el.isReplace
             )
           );
+
+          setQrcodes(
+            parseElements.filter(
+              (el: any) => el._type === "qrcode" && el.isReplace
+            )
+          );
         }
       } catch (error) {}
     })();
@@ -98,14 +105,16 @@ const Preview = () => {
   const onHandlePreview = async (
     designId: string,
     localTexts: any,
-    localImages: any
+    localImages: any,
+    localQrcodes: any
   ) => {
     setImage(null);
     setStatusImage("loading");
     try {
-      const res = await axios.post("http://localhost:3333/design/preview", {
+      const res = await axios.post(`${process.env.api_back}/design/preview`, {
         texts: localTexts,
         images: localImages,
+        qrcodes: localQrcodes,
         designId: Number(designId),
       });
 
@@ -136,6 +145,7 @@ const Preview = () => {
             designId={param?.id}
             texts={texts}
             images={images}
+            qrcodes={qrcodes}
           />
           <Window canvasHeight={canvasHeight} canvasWidth={canvasWidth} />
         </div>
@@ -147,20 +157,22 @@ const Preview = () => {
 type EntersProps = {
   texts: any;
   images: any;
+  qrcodes: any;
 
   designId: string | undefined;
 
   onHandlePreview: any;
 };
 const Enters = memo(
-  ({ texts, images, designId, onHandlePreview }: EntersProps) => {
+  ({ texts, images, qrcodes, designId, onHandlePreview }: EntersProps) => {
     const [localTexts, setLocalTexts] = useState<any>({});
     const [localImages, setLocalImages] = useState<any>({});
-    console.log(localImages);
+    const [localQrcodes, setLocalQrcodes] = useState<any>({});
 
     useEffect(() => {
       let newTexts = {};
       let newImages = {};
+      let newQrcodes = {};
 
       texts.forEach((text: any) => {
         newTexts = {
@@ -184,9 +196,21 @@ const Enters = memo(
         };
       });
 
+      qrcodes.forEach((qrcode: any) => {
+        newQrcodes = {
+          ...newQrcodes,
+          [qrcode.id]: {
+            id: qrcode.id,
+            isReplace: qrcode.isReplace,
+            text: undefined,
+          },
+        };
+      });
+
       setLocalTexts(newTexts);
       setLocalImages(newImages);
-    }, [texts, images]);
+      setLocalQrcodes(newQrcodes);
+    }, [texts, images, qrcodes]);
 
     return (
       <div>
@@ -233,9 +257,26 @@ const Enters = memo(
               ))}
             </>
           )}
+          {qrcodes?.length > 0 && (
+            <>
+              <div
+                style={{
+                  paddingTop: texts.length > 0 ? "30px" : "0",
+                }}
+                className="w-full text-center"
+              >
+                <span className="text-[22px] text-slate-800 font-bold font-[Nunito]">
+                  Qrcode
+                </span>
+                {qrcodes.map((qrcode: any) => (
+                  <Qrcode key={qrcode.id} id={qrcode.id} setLocalQrcodes={setLocalQrcodes} />
+                ))}
+              </div>
+            </>
+          )}
         </div>
         <button
-          onClick={() => onHandlePreview(designId, localTexts, localImages)}
+          onClick={() => onHandlePreview(designId, localTexts, localImages, localQrcodes)}
         >
           preview
         </button>
@@ -243,6 +284,45 @@ const Enters = memo(
     );
   }
 );
+
+
+
+type QrcodeType = {
+  id: string;
+  setLocalQrcodes: any;
+};
+
+const Qrcode = memo(({ id, setLocalQrcodes }: QrcodeType) => {
+  const [localQrcode, setLocalQrcode] = useState('')
+
+
+
+  const onHandleBlur = () => {
+    setLocalQrcodes((prev: any) => {
+      prev[id].text = localQrcode ?? 'appy';
+
+      return prev;
+    });
+  }
+  return (
+    <div className="flex mt-[10px] flex-col">
+      <label
+        className="mb-[4px] flex text-[17px] font-medium text-gray-900"
+        htmlFor={id}
+      >
+        ID: <span className="truncate text-gray-700  ml-[10px]">{id}</span>
+      </label>
+      <input
+        value={localQrcode}
+        onChange={(e) => setLocalQrcode(e.target.value)}
+        onBlur={onHandleBlur}
+        className="outline-none border focus:border-[2px] focus:px-[9px] focus:py-[4px] px-[10px] py-[5px] w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+        id={id}
+        type="text"
+      />
+    </div>
+  );
+});
 
 type ImageProps = {
   id: string;
@@ -358,7 +438,7 @@ const Window = memo(({ canvasWidth, canvasHeight }: WindowType) => {
             }}
             className="border-dashed border-2 border-indigo-600"
           >
-            <img src={image} alt="canvasImg" />
+            <img src={image} className="w-full h-full" alt="canvasImg" />
           </div>
         )}
         {(statusImage === "error" || statusImage === "idle") && (

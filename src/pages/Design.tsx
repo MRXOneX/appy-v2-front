@@ -31,7 +31,7 @@ const Design = () => {
     (async () => {
       try {
         const res = await axios.get(
-          `http://localhost:3333/design/${param?.id}`
+          `${process.env.api_back}/design/${param?.id}`
         );
         console.log(res);
         if (res.status === 200) {

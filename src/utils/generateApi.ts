@@ -16,7 +16,7 @@ const generateApi = async () => {
     }
 
     try {
-        const response = await axios.post('http://localhost:3333/design/review', {
+        const response = await axios.post(`${process.env.api_back}/design/review`, {
             designId: 1, // your id design
             texts,
             images,
